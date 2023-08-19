@@ -24,20 +24,23 @@ async def start(message: types.Message) -> None:
 # ХУКИ ДЛЯ СТАРТА ПОДБОРА КРЕДИТА
 @dp.message_handler(lambda m: m.text == 'Подбор кредита')
 async def message_credit_matching_state_start(message: types.Message) -> None:
-    await message.answer(text.CREDIT_MATCHING_TEXT)
+    await message.delete()
+
     await question1_message_answer(message.from_user.id)
     await distribution.CreditMatching.Q1.set()
 
 
 @dp.callback_query_handler(lambda c: c.data == "credit_matching_start")
-async def callback_credit_matching_state_start(call: types.CallbackQuery) -> None:
+async def callback_credit_matching_state_start(call: types.CallbackQuery) -> None: 
+    await call.message.delete()
+
     await question1_message_answer(call.from_user.id)
     await distribution.CreditMatching.Q1.set()
 
 
 # State CreditMatching
 @dp.callback_query_handler(state=distribution.CreditMatching.Q1)
-async def credit_matching_q1(call: types.CallbackQuery, state: FSMContext):
+async def credit_matching_q1(call: types.CallbackQuery, state: FSMContext) -> None:
     data = call.data
 
     await question_update_state_data('q1', data, state)
@@ -47,7 +50,7 @@ async def credit_matching_q1(call: types.CallbackQuery, state: FSMContext):
 
 
 @dp.callback_query_handler(state=distribution.CreditMatching.Q2)
-async def credit_matching_q2(call: types.CallbackQuery, state: FSMContext):
+async def credit_matching_q2(call: types.CallbackQuery, state: FSMContext) -> None:
     data = call.data
     
     await question_update_state_data('q2', data, state)
@@ -59,7 +62,7 @@ async def credit_matching_q2(call: types.CallbackQuery, state: FSMContext):
 
 
 @dp.callback_query_handler(state=distribution.CreditMatching.Q3)
-async def credit_matching_q3(call: types.CallbackQuery, state: FSMContext):
+async def credit_matching_q3(call: types.CallbackQuery, state: FSMContext) -> None:
     data = call.data
 
     await question_update_state_data('q3', data, state)
@@ -69,8 +72,9 @@ async def credit_matching_q3(call: types.CallbackQuery, state: FSMContext):
         )
     await distribution.CreditMatching.next()
 
+
 @dp.callback_query_handler(state=distribution.CreditMatching.Q4)
-async def credit_matching_q4(call: types.CallbackQuery, state: FSMContext):
+async def credit_matching_q4(call: types.CallbackQuery, state: FSMContext) -> None:
     data = call.data
 
     await question_update_state_data('q4', data, state)
@@ -82,7 +86,7 @@ async def credit_matching_q4(call: types.CallbackQuery, state: FSMContext):
 
 
 @dp.callback_query_handler(state=distribution.CreditMatching.show_result)
-async def credit_matching_show_result(call: types.CallbackQuery, state: FSMContext):
+async def credit_matching_show_result(call: types.CallbackQuery, state: FSMContext) -> None:
     await call.message.delete()
 
     await call.message.answer(
@@ -93,7 +97,7 @@ async def credit_matching_show_result(call: types.CallbackQuery, state: FSMConte
 
 # Cancel CreditMatching
 @dp.message_handler(lambda m: m.text == "Отмена", state=distribution.CreditMatching)
-async def credit_matching_cancel(message: types.Message, state: FSMContext):
+async def credit_matching_cancel(message: types.Message, state: FSMContext) -> None:
     await message.answer("Отмена", reply_markup=await default.menu_keyboard())
 
     await state.finish()
