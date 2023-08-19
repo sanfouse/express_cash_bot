@@ -6,3 +6,9 @@ class CreditMatching(StatesGroup):
     Q3 = State()
     Q4 = State()
     show_result = State()
+
+
+class AddOffer(StatesGroup):
+    photo = State()
+    description = State()
+    url = State()

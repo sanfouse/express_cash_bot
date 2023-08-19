@@ -91,3 +91,16 @@ CREDIT_MATCHING_FINISH_TEXT = """
 CREDIT_MATCHING_SHOW_TEXT = """
 Ваши результаты:
 """
+ADD_OFFER_PHOTO_TEXT = """
+Скиньте фото офера:
+"""
+ADD_OFFER_DESCRIPTION_TEXT = """
+Скиньте описание офера:
+"""
+ADD_OFFER_URL_TEXT = """
+Скиньте описание офера:
+"""
+ADD_OFFER_RESULT = """
+Описание: {}
+Ссылка: {}
+"""
