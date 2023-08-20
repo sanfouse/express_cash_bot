@@ -4,7 +4,7 @@ from data import text
 from keyboards.user import default, inline
 from loader import bot
 from states import distribution
-
+from services.offers_service import get_offers_by_filter
 
 async def question_update_state_data(name, data, state: FSMContext) -> None:
     await state.update_data(
@@ -47,4 +47,28 @@ async def question1_handler(question, chat_id, message_id):
         return distribution.CreditMatching.Q2
     
 
+async def credit_history_analysis(questions: dict):
+    data = {
+        'never': -7,
+        'often': 3,
+        'sometimes': 1,
+        'this week': 1,
+        'That month': 2,
+        'Over a month ago': 0,
+        '0': 2,
+        '1-5': 1,
+        'more than 5': -2,
+        'zero percent': 0,
+        'default percent': 0
+    }
+
+    location = ''
+    new_client = True if questions['q1'] == 'never' else False
+    zero_percent = True if questions['q4'] == 'zero percent' else False
+    bad_credit_history = True if 4 < sum([data[i] for i in questions.values()]) else False
+
+    return await get_offers_by_filter(bad_credit_history, new_client, zero_percent)
     
+
+    
+

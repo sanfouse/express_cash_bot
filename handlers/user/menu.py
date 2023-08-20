@@ -6,7 +6,8 @@ from keyboards.user import default, inline
 from loader import dp
 from services.questions_service import (question1_handler,
                                         question1_message_answer,
-                                        question_update_state_data)
+                                        question_update_state_data,
+                                        credit_history_analysis)
 from services.user_service import check_user_exist
 from states import distribution
 
@@ -82,6 +83,12 @@ async def credit_matching_q4(call: types.CallbackQuery, state: FSMContext) -> No
         text.CREDIT_MATCHING_FINISH_TEXT,
         reply_markup=await inline.credit_matching_show_keyboard()
     )
+    await state.update_data(
+        {
+            'result': await credit_history_analysis(await state.get_data())
+
+        }
+    )
     await distribution.CreditMatching.next()
 
 
@@ -92,6 +99,10 @@ async def credit_matching_show_result(call: types.CallbackQuery, state: FSMConte
     await call.message.answer(
             text.CREDIT_MATCHING_SHOW_TEXT, reply_markup=await default.menu_keyboard()
         )
+    offers = await state.get_data()
+    for offer in offers['result']:
+        await call.message.answer(offer.idx)
+
     await state.finish()
 
 
