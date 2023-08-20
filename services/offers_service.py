@@ -1,4 +1,6 @@
 from database.models import Offer
+from aiogram import types
+from loader import bot
 
 
 async def create_offer(media_path, description, referral_url):
@@ -21,4 +23,21 @@ async def get_offers_by_filter(bad_credit_history, new_client, zero_percent):
 
     return data
             
+
+async def paginate_offers(data, page=1):
+    buttons = types.InlineKeyboardMarkup()
+    pages_count = len(data)
+
+    left  = page-1 if page != 1 else pages_count
+    right = page+1 if page != pages_count else 1
+
+
+    left_button  = types.InlineKeyboardButton("←", callback_data=f'to {left}')
+    page_button  = types.InlineKeyboardButton(f"{str(page)}/{str(pages_count)}", callback_data='_') 
+    right_button = types.InlineKeyboardButton("→", callback_data=f'to {right}')
+    buy_button   = types.InlineKeyboardButton("КУПИТЬ", callback_data='buy')
+    buttons.add(left_button, page_button, right_button)
+    buttons.add(buy_button)
+    
+    return buttons
 

@@ -51,13 +51,13 @@ async def credit_history_analysis(questions: dict):
     data = {
         'never': -7,
         'often': 3,
-        'sometimes': 1,
-        'this week': 1,
-        'That month': 2,
-        'Over a month ago': 0,
-        '0': 2,
-        '1-5': 1,
-        'more than 5': -2,
+        'sometimes': 2,
+        'this week': 3,
+        'That month': 5,
+        'Over a month ago': 1,
+        '0': 3,
+        '1-5': 3,
+        'more than 5': 0,
         'zero percent': 0,
         'default percent': 0
     }

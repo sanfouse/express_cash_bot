@@ -3,12 +3,13 @@ from aiogram.dispatcher import FSMContext
 
 from data import text
 from keyboards.user import default, inline
-from loader import dp
+from loader import dp, bot
 from services.questions_service import (question1_handler,
                                         question1_message_answer,
                                         question_update_state_data,
                                         credit_history_analysis)
 from services.user_service import check_user_exist
+from services.offers_service import paginate_offers
 from states import distribution
 
 
@@ -85,25 +86,33 @@ async def credit_matching_q4(call: types.CallbackQuery, state: FSMContext) -> No
     )
     await state.update_data(
         {
-            'result': await credit_history_analysis(await state.get_data())
-
+            'result': await credit_history_analysis(await state.get_data()),
+            'chat_id': call.message.chat.id
         }
     )
     await distribution.CreditMatching.next()
 
 
+@dp.callback_query_handler(lambda c: 'to' in c.data, state=distribution.CreditMatching.show_result)
+async def callback(call: types.CallbackQuery, state: FSMContext):
+    if 'to' in call.data: 
+        page = int(call.data.split(' ')[1])
+        await credit_matching_show_result(call.message, page=page, previous_message=call.message, state=state)
+
+
 @dp.callback_query_handler(state=distribution.CreditMatching.show_result)
-async def credit_matching_show_result(call: types.CallbackQuery, state: FSMContext) -> None:
-    await call.message.delete()
-
-    await call.message.answer(
-            text.CREDIT_MATCHING_SHOW_TEXT, reply_markup=await default.menu_keyboard()
-        )
-    offers = await state.get_data()
-    for offer in offers['result']:
-        await call.message.answer(offer.idx)
-
-    await state.finish()
+async def credit_matching_show_result(call: types.CallbackQuery, state: FSMContext, page=1, previous_message=None) -> None:
+    data = await state.get_data()
+    offer = data['result'][page - 1]
+    markup = await paginate_offers(data['result'], page)
+    try: 
+        try: photo = open(offer.media_path, 'rb')
+        except: photo = offer.media_path
+        await bot.send_photo(data['chat_id'], photo=photo, caption=text.ADD_OFFER_RESULT.format(offer.description, offer.referral_url), reply_markup=markup)
+    except: 
+        await bot.send_message(data['chat_id'], text.ADD_OFFER_RESULT.format(offer.description, reply_markup=markup))
+    try: await bot.delete_message(data['chat_id'], previous_message.message_id)
+    except AttributeError: pass
 
 
 # Cancel CreditMatching
@@ -112,3 +121,4 @@ async def credit_matching_cancel(message: types.Message, state: FSMContext) -> N
     await message.answer("Отмена", reply_markup=await default.menu_keyboard())
 
     await state.finish()
+    
