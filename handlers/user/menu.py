@@ -4,14 +4,14 @@ from aiogram.dispatcher import FSMContext
 from data import text
 from keyboards.user import default, inline
 from loader import bot, dp
-from services.offers_service import paginate_offers
+from services.offers_service import (delete_offer, get_all_offers,
+                                     paginate_offers)
 from services.questions_service import (credit_history_analysis,
                                         question1_handler,
                                         question1_message_answer,
                                         question_update_state_data)
 from services.user_service import check_user_exist
 from states import distribution
-from database.models import Offer
 
 
 @dp.message_handler(commands='start')
@@ -27,12 +27,12 @@ async def start(message: types.Message) -> None:
 @dp.message_handler(lambda m: m.text == 'Список организаций')
 async def start(message: types.Message) -> None:
     await message.answer(
-        text.CREDIT_LIST_START_MESSAGE, 
-        reply_markup=await default.credit_mathching_cancel_keyboard()
+            text.CREDIT_LIST_START_MESSAGE, 
+            reply_markup=await default.credit_mathching_cancel_keyboard()
         )
     await message.answer(
-        text.CREDIT_LIST_MESSAGE, 
-        reply_markup=await inline.credit_list_start_keyboard()
+            text.CREDIT_LIST_MESSAGE, 
+            reply_markup=await inline.credit_list_start_keyboard()
         )
     await distribution.CreditMatching.show_result.set()
 
@@ -108,8 +108,21 @@ async def credit_matching_q4(call: types.CallbackQuery, state: FSMContext) -> No
 
 
 @dp.callback_query_handler(
-            lambda c: 'to' in c.data, state=distribution.CreditMatching.show_result
+    lambda c: c.data.split(' ')[0].isdigit(), state=distribution.CreditMatching.show_result
+)
+async def callback(call: types.CallbackQuery, state: FSMContext):
+    await delete_offer(int(call.data.split(' ')[0]))
+    await state.update_data(
+            {
+                'result': await get_all_offers()
+            }
         )
+    await callback(call, state)
+
+
+@dp.callback_query_handler(
+    lambda c: 'to' in c.data, state=distribution.CreditMatching.show_result
+)
 async def callback(call: types.CallbackQuery, state: FSMContext):
     page = int(call.data.split(' ')[1])
     await credit_matching_show_result(
@@ -128,7 +141,7 @@ async def credit_matching_show_result(
     except KeyError:
         await state.update_data(
             {
-                'result': await Offer.query.gino.all(),
+                'result': await get_all_offers(),
                 'chat_id': call.from_user.id
             }
         )
@@ -136,27 +149,34 @@ async def credit_matching_show_result(
         data = await state.get_data()
         result = data['result']
         chat_id = data['chat_id']
+    try:
+        offer = result[page - 1]
+        markup = await paginate_offers(chat_id in [895872844], result, offer, page)
 
-    offer = result[page - 1]
-    markup = await paginate_offers(result, page)
-
-    try: 
-        try: photo = open(offer.media_path, 'rb')
-        except: photo = offer.media_path
-        await bot.send_photo(
-                chat_id,
-                photo=photo,
-                caption=text.ADD_OFFER_RESULT.format(offer.description, offer.referral_url),
-                reply_markup=markup
-            )
-    except: 
+        try: 
+            try: photo = open(offer.media_path, 'rb')
+            except: photo = offer.media_path
+            await bot.send_photo(
+                    chat_id,
+                    photo=photo,
+                    caption=offer,
+                    reply_markup=markup
+                )
+        except: 
+            await bot.send_message(
+                    chat_id,
+                    offer,
+                    reply_markup=markup
+                )
+        try: await bot.delete_message(chat_id, previous_message.message_id)
+        except AttributeError: pass
+    except IndexError:
         await bot.send_message(
-                chat_id,
-                text.ADD_OFFER_RESULT.format(offer.description, offer.referral_url),
-                reply_markup=markup
-            )
-    try: await bot.delete_message(chat_id, previous_message.message_id)
-    except AttributeError: pass
+            chat_id,
+            text.CREDIT_MATCHING_SHOW_TEXT,
+            reply_markup=await default.menu_keyboard()
+        )
+        await state.finish()
 
 
 # Cancel CreditMatching

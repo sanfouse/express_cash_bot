@@ -11,6 +11,6 @@ if os.path.exists(ENV_FILE):
 
 BOT_TOKEN = os.getenv('BOT_TOKEN')
 DATABASE_URL = os.getenv('DATABASE_URL')
-ADMIN_IDS = os.getenv('ADMIN_IDS')
+# ADMIN_IDS = list(os.getenv('ADMIN_IDS'))
 
 # CHANNEL_ID= int(os.getenv('CHANNEL_ID'))

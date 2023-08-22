@@ -20,4 +20,5 @@ class AddOffer(StatesGroup):
     bad_credit_history = State()
     zero_percent = State()
 
+    name = State()
     referral_url = State()

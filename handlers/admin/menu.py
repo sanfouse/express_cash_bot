@@ -78,7 +78,7 @@ async def admin_add_offer_new_client(call: types.CallbackQuery, state: FSMContex
 
     await state.update_data(
             {
-                'new_client': bool(call.data)
+                'new_client': bool(int(call.data))
             }
         )
     await call.message.answer(
@@ -95,7 +95,7 @@ async def admin_add_offer_bad_credit_history(call: types.CallbackQuery, state: F
 
     await state.update_data(
             {
-                'bad_credit_history': bool(call.data)
+                'bad_credit_history': bool(int(call.data))
             }
         )
     await call.message.answer(
@@ -112,10 +112,24 @@ async def admin_add_offer_zero_percent(call: types.CallbackQuery, state: FSMCont
 
     await state.update_data(
             {
-                'zero_percent': bool(call.data)
+                'zero_percent': bool(int(call.data))
             }
         )
     await call.message.answer(text.ADD_OFFER_STEPS[STEP])
+
+    await distribution.AddOffer.next()
+
+
+@dp.message_handler(IsAdmin(), state=distribution.AddOffer.name)
+async def admin_add_offer_message(message: types.Message, state: FSMContext):
+    STEP = 8
+
+    await state.update_data(
+            {
+                'name': message.text
+            }
+        )
+    await message.answer(text.ADD_OFFER_STEPS[STEP])
 
     await distribution.AddOffer.next()
 
@@ -143,7 +157,8 @@ async def admin_add_offer_referral_url(message: types.Message, state: FSMContext
             new_client=data['new_client'],
             bad_credit_history=data['bad_credit_history'],
             zero_percent=data['zero_percent'],
-            referral_url=data['referral_url']
+            referral_url=data['referral_url'],
+            name=data['name']
         )
 
     await state.finish()

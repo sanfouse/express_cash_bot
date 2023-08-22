@@ -49,7 +49,7 @@ async def question1_handler(question, chat_id, message_id):
 
 async def credit_history_analysis(questions: dict):
     data = {
-        'never': -7,
+        'never': 0,
         'often': 3,
         'sometimes': 2,
         'this week': 3,

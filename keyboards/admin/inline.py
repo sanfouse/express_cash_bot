@@ -28,11 +28,11 @@ async def add_offeer_choose_keyboard():
     markup.add(
         InlineKeyboardButton(
             text='Да',
-            callback_data='0'
+            callback_data='1'
         ),
         InlineKeyboardButton(
             text='Нет',
-            callback_data='1'
+            callback_data='0'
         )
     )
 
