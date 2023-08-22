@@ -93,24 +93,37 @@ async def credit_matching_q4(call: types.CallbackQuery, state: FSMContext) -> No
     await distribution.CreditMatching.next()
 
 
-@dp.callback_query_handler(lambda c: 'to' in c.data, state=distribution.CreditMatching.show_result)
+@dp.callback_query_handler(
+            lambda c: 'to' in c.data, state=distribution.CreditMatching.show_result
+        )
 async def callback(call: types.CallbackQuery, state: FSMContext):
-    if 'to' in call.data: 
-        page = int(call.data.split(' ')[1])
-        await credit_matching_show_result(call.message, page=page, previous_message=call.message, state=state)
+    page = int(call.data.split(' ')[1])
+    await credit_matching_show_result(
+            call.message, page=page, previous_message=call.message, state=state
+        )
 
 
 @dp.callback_query_handler(state=distribution.CreditMatching.show_result)
-async def credit_matching_show_result(call: types.CallbackQuery, state: FSMContext, page=1, previous_message=None) -> None:
+async def credit_matching_show_result(
+        call: types.CallbackQuery, state: FSMContext, page=1, previous_message=None
+    ) -> None:
     data = await state.get_data()
     offer = data['result'][page - 1]
     markup = await paginate_offers(data['result'], page)
     try: 
         try: photo = open(offer.media_path, 'rb')
         except: photo = offer.media_path
-        await bot.send_photo(data['chat_id'], photo=photo, caption=text.ADD_OFFER_RESULT.format(offer.description, offer.referral_url), reply_markup=markup)
+        await bot.send_photo(
+                data['chat_id'],
+                photo=photo,
+                caption=text.ADD_OFFER_RESULT.format(offer.description, offer.referral_url),
+                reply_markup=markup
+            )
     except: 
-        await bot.send_message(data['chat_id'], text.ADD_OFFER_RESULT.format(offer.description, reply_markup=markup))
+        await bot.send_message(
+                data['chat_id'],
+                text.ADD_OFFER_RESULT.format(offer.description, reply_markup=markup)
+            )
     try: await bot.delete_message(data['chat_id'], previous_message.message_id)
     except AttributeError: pass
 
