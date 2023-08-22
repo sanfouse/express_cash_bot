@@ -2,10 +2,23 @@ from database.models import Offer
 from aiogram import types
 
 
-async def create_offer(media_path, description, referral_url):
+async def create_offer(
+            media_path,
+            description, 
+            country, 
+            new_client, 
+            bad_credit_history, 
+            zero_percent, 
+            referral_url
+        ) -> None:
+    
     await Offer.create(
         media_path=media_path,
         description=description,
+        country=int(country),
+        new_client=new_client,
+        bad_credit_history=bad_credit_history,
+        zero_percent=zero_percent,
         referral_url=referral_url
     )
 
@@ -23,7 +36,7 @@ async def get_offers_by_filter(bad_credit_history, new_client, zero_percent):
     return data
             
 
-async def paginate_offers(data, page=1):
+async def paginate_offers(data, page=1) -> types.InlineKeyboardMarkup:
     markup = types.InlineKeyboardMarkup()
     pages_count = len(data)
 

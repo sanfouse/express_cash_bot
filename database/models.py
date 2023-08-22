@@ -1,5 +1,5 @@
 from gino import Gino
-from sqlalchemy import BigInteger, Column, String, Boolean
+from sqlalchemy import BigInteger, Column, String, Boolean, ForeignKey
 
 
 db = Gino()
@@ -21,10 +21,15 @@ class Offer(db.Model):
 
     description: str = Column(String())
 
-    location: str = Column(String())
-    terms: str = Column(String())
-    requirements: str = Column(String())
+    country: str = Column(ForeignKey('countries.idx'))
 
     new_client: bool = Column(Boolean(), default=False)
     bad_credit_history: bool = Column(Boolean(), default=False)
     zero_percent: bool = Column(Boolean(), default=False)
+
+
+class Country(db.Model):
+    __tablename__ = "countries"
+
+    idx: int = Column(BigInteger, primary_key=True)
+    name: str = Column(String(255))

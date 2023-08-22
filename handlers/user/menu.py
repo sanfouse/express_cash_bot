@@ -3,13 +3,13 @@ from aiogram.dispatcher import FSMContext
 
 from data import text
 from keyboards.user import default, inline
-from loader import dp, bot
-from services.questions_service import (question1_handler,
-                                        question1_message_answer,
-                                        question_update_state_data,
-                                        credit_history_analysis)
-from services.user_service import check_user_exist
+from loader import bot, dp
 from services.offers_service import paginate_offers
+from services.questions_service import (credit_history_analysis,
+                                        question1_handler,
+                                        question1_message_answer,
+                                        question_update_state_data)
+from services.user_service import check_user_exist
 from states import distribution
 
 
@@ -134,4 +134,3 @@ async def credit_matching_cancel(message: types.Message, state: FSMContext) -> N
     await message.answer("Отмена", reply_markup=await default.menu_keyboard())
 
     await state.finish()
-    
