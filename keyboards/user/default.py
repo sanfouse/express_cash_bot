@@ -7,7 +7,8 @@ async def menu_keyboard():
     markup = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
     
     markup.add(
-        KeyboardButton('Подбор кредита')
+        KeyboardButton('Подбор кредита'),
+        KeyboardButton('Список организаций')
     )
 
     return markup

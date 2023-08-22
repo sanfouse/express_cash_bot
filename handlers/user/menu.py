@@ -11,6 +11,7 @@ from services.questions_service import (credit_history_analysis,
                                         question_update_state_data)
 from services.user_service import check_user_exist
 from states import distribution
+from database.models import Offer
 
 
 @dp.message_handler(commands='start')
@@ -21,6 +22,19 @@ async def start(message: types.Message) -> None:
             text.CREDIT_MATCHING_DESCRIPTION,
             reply_markup=await inline.credit_matching_start_keyboard()
         )
+    
+
+@dp.message_handler(lambda m: m.text == 'Список организаций')
+async def start(message: types.Message) -> None:
+    await message.answer(
+        text.CREDIT_LIST_START_MESSAGE, 
+        reply_markup=await default.credit_mathching_cancel_keyboard()
+        )
+    await message.answer(
+        text.CREDIT_LIST_MESSAGE, 
+        reply_markup=await inline.credit_list_start_keyboard()
+        )
+    await distribution.CreditMatching.show_result.set()
 
 
 # ХУКИ ДЛЯ СТАРТА ПОДБОРА КРЕДИТА
@@ -107,24 +121,41 @@ async def callback(call: types.CallbackQuery, state: FSMContext):
 async def credit_matching_show_result(
         call: types.CallbackQuery, state: FSMContext, page=1, previous_message=None
     ) -> None:
-    data = await state.get_data()
-    offer = data['result'][page - 1]
-    markup = await paginate_offers(data['result'], page)
+    try:
+        data = await state.get_data()
+        result = data['result']
+        chat_id = data['chat_id']
+    except KeyError:
+        await state.update_data(
+            {
+                'result': await Offer.query.gino.all(),
+                'chat_id': call.from_user.id
+            }
+        )
+    finally:
+        data = await state.get_data()
+        result = data['result']
+        chat_id = data['chat_id']
+
+    offer = result[page - 1]
+    markup = await paginate_offers(result, page)
+
     try: 
         try: photo = open(offer.media_path, 'rb')
         except: photo = offer.media_path
         await bot.send_photo(
-                data['chat_id'],
+                chat_id,
                 photo=photo,
                 caption=text.ADD_OFFER_RESULT.format(offer.description, offer.referral_url),
                 reply_markup=markup
             )
     except: 
         await bot.send_message(
-                data['chat_id'],
-                text.ADD_OFFER_RESULT.format(offer.description, reply_markup=markup)
+                chat_id,
+                text.ADD_OFFER_RESULT.format(offer.description, offer.referral_url),
+                reply_markup=markup
             )
-    try: await bot.delete_message(data['chat_id'], previous_message.message_id)
+    try: await bot.delete_message(chat_id, previous_message.message_id)
     except AttributeError: pass
 
 

@@ -2,6 +2,20 @@ from database import models
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.callback_data import CallbackData
 
+
+async def credit_list_start_keyboard():
+
+    markup = InlineKeyboardMarkup()
+    markup.add(
+        InlineKeyboardButton(
+            text='Старт',
+            callback_data='credit_list_start'
+        )
+    )
+
+    return markup
+
+
 async def credit_matching_start_keyboard():
 
     markup = InlineKeyboardMarkup()
