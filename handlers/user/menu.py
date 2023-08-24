@@ -110,20 +110,20 @@ async def credit_matching_q4(call: types.CallbackQuery, state: FSMContext) -> No
 @dp.callback_query_handler(
     lambda c: c.data.split(' ')[0].isdigit(), state=distribution.CreditMatching.show_result
 )
-async def callback(call: types.CallbackQuery, state: FSMContext):
+async def delete_offera_callback(call: types.CallbackQuery, state: FSMContext):
     await delete_offer(int(call.data.split(' ')[0]))
     await state.update_data(
             {
                 'result': await get_all_offers()
             }
         )
-    await callback(call, state)
+    await offers_paginate_callback(call, state)
 
 
 @dp.callback_query_handler(
     lambda c: 'to' in c.data, state=distribution.CreditMatching.show_result
 )
-async def callback(call: types.CallbackQuery, state: FSMContext):
+async def offers_paginate_callback(call: types.CallbackQuery, state: FSMContext):
     page = int(call.data.split(' ')[1])
     await credit_matching_show_result(
             call.message, page=page, previous_message=call.message, state=state
@@ -134,10 +134,14 @@ async def callback(call: types.CallbackQuery, state: FSMContext):
 async def credit_matching_show_result(
         call: types.CallbackQuery, state: FSMContext, page=1, previous_message=None
     ) -> None:
-    try:
+    async def _get_data_result_and_chat_id():
         data = await state.get_data()
         result = data['result']
         chat_id = data['chat_id']
+        return result, chat_id    
+
+    try:
+        result, chat_id = await _get_data_result_and_chat_id()
     except KeyError:
         await state.update_data(
             {
@@ -146,9 +150,7 @@ async def credit_matching_show_result(
             }
         )
     finally:
-        data = await state.get_data()
-        result = data['result']
-        chat_id = data['chat_id']
+        result, chat_id = await _get_data_result_and_chat_id()
     try:
         offer = result[page - 1]
         markup = await paginate_offers(chat_id in [895872844], result, offer, page)
