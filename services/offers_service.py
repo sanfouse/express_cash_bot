@@ -74,7 +74,7 @@ async def paginate_offers(admin, data, offer, page=1) -> types.InlineKeyboardMar
         ),
         types.InlineKeyboardButton(
             f"{str(page)}/{str(pages_count)}",
-            callback_data='_'
+            callback_data=''
         ), 
         types.InlineKeyboardButton(
             "→", callback_data=f'to {right}'

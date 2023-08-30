@@ -31,7 +31,7 @@ async def credit_matching_start_keyboard():
 
 async def credit_matching_q1_keyboard():
 
-    markup = InlineKeyboardMarkup()
+    markup = InlineKeyboardMarkup(row_width=1)
     markup.add(
         InlineKeyboardButton(
             text='Никогда не брал займ',
@@ -52,7 +52,7 @@ async def credit_matching_q1_keyboard():
 
 async def credit_matching_q2_keyboard():
 
-    markup = InlineKeyboardMarkup()
+    markup = InlineKeyboardMarkup(row_width=1)
     markup.add(
         InlineKeyboardButton(
             text='На этой неделе',
@@ -72,7 +72,7 @@ async def credit_matching_q2_keyboard():
 
 async def credit_matching_q3_keyboard():
 
-    markup = InlineKeyboardMarkup()
+    markup = InlineKeyboardMarkup(row_width=1)
     markup.add(
         InlineKeyboardButton(
             text='0',
@@ -92,7 +92,7 @@ async def credit_matching_q3_keyboard():
 
 async def credit_matching_q4_keyboard():
 
-    markup = InlineKeyboardMarkup()
+    markup = InlineKeyboardMarkup(row_width=1)
     markup.add(
         InlineKeyboardButton(
             text='Займы под 0%',

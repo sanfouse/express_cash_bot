@@ -4,7 +4,7 @@ from aiogram.utils.callback_data import CallbackData
 
 
 async def menu_keyboard():
-    markup = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+    markup = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True, row_width=1)
     
     markup.add(
         KeyboardButton('Подбор кредита'),

@@ -12,7 +12,7 @@ async def add_offer_cancel_keyboard():
 
 
 async def menu_keyboard():
-    markup = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+    markup = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True, row_width=1)
     
     markup.add(
         KeyboardButton('Подбор кредита'),

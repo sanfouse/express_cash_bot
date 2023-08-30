@@ -53,4 +53,4 @@ class Country(db.Model):
     __tablename__ = "countries"
 
     idx: int = Column(BigInteger, primary_key=True)
-    name: str = Column(String(255), primary_key=True)
+    name: str = Column(String(255))

@@ -2,6 +2,7 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 
 from data import text
+from data.config import ADMIN_IDS
 from keyboards.user import default, inline
 from loader import bot, dp
 from services.offers_service import (delete_offer, get_all_offers,
@@ -153,7 +154,7 @@ async def credit_matching_show_result(
         result, chat_id = await _get_data_result_and_chat_id()
     try:
         offer = result[page - 1]
-        markup = await paginate_offers(chat_id in [895872844], result, offer, page)
+        markup = await paginate_offers(chat_id in ADMIN_IDS, result, offer, page)
 
         try: 
             try: photo = open(offer.media_path, 'rb')
